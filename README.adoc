@@ -1,0 +1,11 @@
+= sandbox-lsm
+
+Simple and dirty example of "how to use LSM framework"
+
+Real kernel requires in-tree compilation of LSM modules
+(that correct since we should care about security and overrides)
+
+In order to make your kernel 'sandspity' -- you should apply patch `export_hooks.patch`
+first in order to be able to insmod your LSM modules that were compiled outside of main tree.
+
+The module itself just 'marks' some sample points and is going to change nothing.
