@@ -5,7 +5,64 @@ Simple and dirty example of "how to use LSM framework"
 Real kernel requires in-tree compilation of LSM modules
 (that correct since we should care about security and overrides)
 
-In order to make your kernel 'sandspity' -- you should apply patch `export_hooks.patch`
+In order to make your kernel 'sandspity' -- you __may__ apply patch `export_hooks.patch`
 first in order to be able to insmod your LSM modules that were compiled outside of main tree.
 
+Please, read <<Out-of-tree LKM>> section first.
+
 The module itself just 'marks' some sample points and is going to change nothing.
+
+== sample output
+
+```
+[ 1369.853864] initing LSM-Wrap as a module!
+[ 1369.866008] LSM-Wrap: LSM hook task-free
+...
+[ 1467.525562] LSM-Wrap: LSM hook task-free
+[ 1470.372110] LSM-Wrap: kernel-module LSM hook before spin-lock obj="*****.ko" pid=4314 cmdline="insmod *fs.ko"
+[ 1470.372114] LSM-Wrap: kernel-module LSM hook inside spin-lock obj="*****.ko" pid=4314 cmdline="insmod *fs.ko"
+[ 1470.372118] LSM-Wrap: kernel-module LSM hook after spin-lock obj="*****.ko" pid=4314 cmdline="insmod *fs.ko"
+[ 1470.374511] Registering *fs 0.1
+[ 1470.386819] LSM-Wrap: LSM hook task-free
+...
+[ 1537.109728] LSM-Wrap: LSM hook task-free
+[ 1539.275041] -> DBG:/home/user/sandbox-seccontiofs/fs/seccontiofs/inode.c:seccontiofs_getattr:434
+[ 1540.849364] LSM-Wrap: umount fs
+```
+
+== Out-of-tree LKM
+
+Using the LKM functionality is possible by applying the patch and unlocking the following:
+
+[source,c]
+----
+#if 0 // <1>
+static int __init lsmwrap_init_as_module(void)
+{
+    printk(KERN_DEBUG "initing LSM-Wrap as a module!\n");
+    security_add_hooks(lsmwrap_hooks, ARRAY_SIZE(lsmwrap_hooks));
+
+    return 0;
+}
+
+#ifdef CONFIG_SECURITY_SELINUX_DISABLE
+static void __exit lsmwrap_exit_as_module(void)
+{
+    security_delete_hooks(lsmwrap_hooks, ARRAY_SIZE(lsmwrap_hooks));
+    printk(KERN_DEBUG "exiting LSM-Wrap module\n");
+}
+module_exit(lsmwrap_exit_as_module);
+#endif
+
+module_init(lsmwrap_init_as_module);
+#endif
+----
+<1> change it to `1` (any numeric != 0) or any other `true` value
+
+CAUTION: `inmod` normally cannot be undone!
+
+If you're using kernel w.o. SELinux (i.e. it's not compiled or disabled) -- you
+__may try__ to delete hooks you inserted.
+
+WARNING: At least `lsmwrap_task_free` influence to task list
+so, normally, your system **may die** on `rmmod`. So, by careful!

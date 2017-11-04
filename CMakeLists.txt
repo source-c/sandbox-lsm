@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
 project(lsm-wrap)
-
+set(SOURCE_FILES lsm-wrap.c)
+add_library(lsm-wrap ${SOURCE_FILES})
 set(CMAKE_CXX_STANDARD 11)

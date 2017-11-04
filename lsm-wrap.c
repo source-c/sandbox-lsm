@@ -33,6 +33,10 @@ static void report_load(const char *origin, struct file *file, char *operation) 
 
 extern struct security_hook_heads security_hook_heads;
 
+#ifdef CONFIG_SECURITY_SELINUX_DISABLE
+extern void security_delete_hooks(struct security_hook_list *hooks, int count);
+#endif
+
 static int enabled = CONFIG_LSMWRAP_ENABLED;
 
 static DEFINE_SPINLOCK(lsmwrap_spinlock);
@@ -86,6 +90,27 @@ void __initlsmwrap_add_hooks(void) {
     pr_info("initing LSM-Wrap (currently %sabled)", enabled ? "en" : "dis");
     security_add_hooks(lsmwrap_hooks, ARRAY_SIZE(lsmwrap_hooks));
 }
+
+#if 0
+static int __init lsmwrap_init_as_module(void)
+{
+    printk(KERN_DEBUG "initing LSM-Wrap as a module!\n");
+    security_add_hooks(lsmwrap_hooks, ARRAY_SIZE(lsmwrap_hooks));
+
+    return 0;
+}
+
+#ifdef CONFIG_SECURITY_SELINUX_DISABLE
+static void __exit lsmwrap_exit_as_module(void)
+{
+    security_delete_hooks(lsmwrap_hooks, ARRAY_SIZE(lsmwrap_hooks));
+    printk(KERN_DEBUG "exiting LSM-Wrap module\n");
+}
+module_exit(lsmwrap_exit_as_module);
+#endif
+
+module_init(lsmwrap_init_as_module);
+#endif
 
 module_param(enabled, int, 0);
 MODULE_PARM_DESC(enabled, "Simple LSM-Wrap module (default: true)");
