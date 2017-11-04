@@ -64,5 +64,5 @@ CAUTION: `inmod` normally cannot be undone!
 If you're using kernel w.o. SELinux (i.e. it's not compiled or disabled) -- you
 __may try__ to delete hooks you inserted.
 
-WARNING: At least `lsmwrap_task_free` influence to task list
-so, normally, your system **may die** on `rmmod`. So, by careful!
+WARNING: At least lsmwrap_task_free has influence on task list.
+So, normally, your system will die on rmmod. Be careful!
