@@ -1,0 +1,9 @@
+--- a/security/security.c 2017-11-04 21:05:47.454935765 +0200
++++ b/security/security.c 2017-11-04 21:03:48.759934589 +0200
+@@ -1951,3 +1951,5 @@
+                LIST_HEAD_INIT(security_hook_heads.audit_rule_free),
+ #endif /* CONFIG_AUDIT */
+ };
++
++EXPORT_SYMBOL(security_hook_heads);
++
